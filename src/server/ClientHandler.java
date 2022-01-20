@@ -13,8 +13,8 @@ public class ClientHandler extends Thread {
 	public ClientHandler(Socket clientSocket) {
 		this.clientSocket = clientSocket;
 		try {
-			inputStream = new ObjectInputStream(clientSocket.getInputStream());
 			outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+			inputStream = new ObjectInputStream(clientSocket.getInputStream());
 			start();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -24,22 +24,21 @@ public class ClientHandler extends Thread {
 	@Override
 	public void run() {
 		try {
-			readMessages();
+			while (true) {
+				readMessages();
+			}
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void readMessages() throws IOException, ClassNotFoundException {
-		while (inputStream.available() > 0) {
-			int[] array = (int[]) inputStream.readObject();
+		int[] array = (int[]) inputStream.readObject();
+		Arrays.sort(array);
 
-			Arrays.sort(array);
-
-			int[] result = Arrays.stream(array).limit(10).toArray();
-			for (int i = 0; i < 10; i++) {
-				outputStream.writeObject(result);
-			}
+		int[] result = Arrays.stream(array).limit(10).toArray();
+		for (int i = 0; i < 10; i++) {
+			outputStream.writeObject(result);
 		}
 	}
 }

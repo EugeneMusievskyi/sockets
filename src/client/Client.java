@@ -22,31 +22,21 @@ public class Client {
 			inputStream = new ObjectInputStream(socket.getInputStream());
 			System.out.println("networking established");
 			sendArray();
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void sendArray() throws IOException {
+	private void sendArray() throws IOException, ClassNotFoundException {
 		int[] array = new int[1000000];
 		var random = new Random();
 		for (int i = 0; i < array.length; i++) {
 			array[i] = random.nextInt(1000);
 		}
-
 		outputStream.writeObject(array);
-		readResult();
-	}
 
-	private void readResult() throws IOException {
-		if (inputStream.available() > 0) {
-			try {
-				int[] array = (int[]) inputStream.readObject();
-				System.out.println(Arrays.toString(array));
-			} catch (ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
+		int[] result = (int[]) inputStream.readObject();
+		System.out.println(Arrays.toString(result));
 	}
 
 }

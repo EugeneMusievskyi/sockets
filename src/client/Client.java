@@ -2,13 +2,14 @@ package client;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.Random;
 
 public class Client {
 
 	private Socket socket;
-	private DataInputStream inputStream;
-	private DataOutputStream outputStream;
+	private ObjectInputStream inputStream;
+	private ObjectOutputStream outputStream;
 
 	public static void main(String[] args) {
 		new Client().setUpNetwork();
@@ -17,8 +18,8 @@ public class Client {
 	public void setUpNetwork() {
 		try {
 			socket = new Socket("localhost", 5000);
-			inputStream = new DataInputStream(socket.getInputStream());
-			outputStream = new DataOutputStream(socket.getOutputStream());
+			outputStream = new ObjectOutputStream(socket.getOutputStream());
+			inputStream = new ObjectInputStream(socket.getInputStream());
 			System.out.println("networking established");
 			sendArray();
 		} catch (IOException e) {
@@ -31,16 +32,19 @@ public class Client {
 		var random = new Random();
 		for (int i = 0; i < array.length; i++) {
 			array[i] = random.nextInt(1000);
-			outputStream.writeInt(array[i]);
 		}
 
+		outputStream.writeObject(array);
 		readResult();
 	}
 
 	private void readResult() throws IOException {
 		if (inputStream.available() > 0) {
-			for (int i = 0; i < 10; i++) {
-				System.out.println(inputStream.readInt());
+			try {
+				int[] array = (int[]) inputStream.readObject();
+				System.out.println(Arrays.toString(array));
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
 			}
 		}
 	}

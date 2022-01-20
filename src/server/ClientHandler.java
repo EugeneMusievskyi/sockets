@@ -4,17 +4,18 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
 
-public class ClientHandler implements Runnable {
+public class ClientHandler extends Thread {
 
-	private final DataInputStream inputStream;
-	private final DataOutputStream outputStream;
+	private final ObjectInputStream inputStream;
+	private final ObjectOutputStream outputStream;
 	private final Socket clientSocket;
 
 	public ClientHandler(Socket clientSocket) {
 		this.clientSocket = clientSocket;
 		try {
-			inputStream = new DataInputStream(clientSocket.getInputStream());
-			outputStream = new DataOutputStream(clientSocket.getOutputStream());
+			inputStream = new ObjectInputStream(clientSocket.getInputStream());
+			outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+			start();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -24,21 +25,20 @@ public class ClientHandler implements Runnable {
 	public void run() {
 		try {
 			readMessages();
-		} catch (IOException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void readMessages() throws IOException {
+	private void readMessages() throws IOException, ClassNotFoundException {
 		while (inputStream.available() > 0) {
-			int[] array = new int[1000000];
-			for (int i = 0; i < array.length; i++) {
-				array[i] = inputStream.readInt();
-			}
+			int[] array = (int[]) inputStream.readObject();
 
 			Arrays.sort(array);
+
+			int[] result = Arrays.stream(array).limit(10).toArray();
 			for (int i = 0; i < 10; i++) {
-				outputStream.writeInt(array[i]);
+				outputStream.writeObject(result);
 			}
 		}
 	}

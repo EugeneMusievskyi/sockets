@@ -2,6 +2,7 @@ package client;
 
 import java.io.*;
 import java.net.Socket;
+import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -22,16 +23,16 @@ public class Client {
 			inputStream = new ObjectInputStream(socket.getInputStream());
 			System.out.println("networking established");
 			sendArray();
-		} catch (IOException | ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException | InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void sendArray() throws IOException, ClassNotFoundException {
+	private void sendArray() throws IOException, ClassNotFoundException, InterruptedException {
 		int[] array = new int[1000000];
 		var random = new Random();
 		for (int i = 0; i < array.length; i++) {
-			array[i] = random.nextInt(1000);
+			array[i] = random.nextInt(Integer.MAX_VALUE);
 		}
 		outputStream.writeObject(array);
 

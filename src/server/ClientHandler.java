@@ -6,13 +6,13 @@ import java.util.Arrays;
 
 public class ClientHandler extends Thread {
 
-	private final ObjectInputStream inputStream;
-	private final ObjectOutputStream outputStream;
+	private final ObjectInputStream clientInput;
+	private final ObjectOutputStream clientOutput;
 
 	public ClientHandler(Socket clientSocket) {
 		try {
-			outputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-			inputStream = new ObjectInputStream(clientSocket.getInputStream());
+			clientOutput = new ObjectOutputStream(clientSocket.getOutputStream());
+			clientInput = new ObjectInputStream(clientSocket.getInputStream());
 			start();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -29,10 +29,10 @@ public class ClientHandler extends Thread {
 	}
 
 	private void readMessages() throws IOException, ClassNotFoundException, InterruptedException {
-		int[] array = (int[]) inputStream.readObject();
+		int[] array = (int[]) clientInput.readObject();
 		Arrays.sort(array);
 
 		int[] result = Arrays.stream(array).limit(10).toArray();
-		outputStream.writeObject(result);
+		clientOutput.writeObject(result);
 	}
 }
